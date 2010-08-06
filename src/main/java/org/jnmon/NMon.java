@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.DateTickUnit;
@@ -159,10 +158,10 @@ public class NMon {
 //    plot.setDataset(2, createDataset3());
 //    plot.setRenderer(2, renderer2);
 
-    final JFreeChart chart = new JFreeChart("SuppXly and Demand", plot);
+    final JFreeChart chart = new JFreeChart("LPAR Chart", plot);
     chart.getLegend().setPosition(RectangleEdge.TOP);
-    File file = new File("cpu.png");
-    ChartUtilities.saveChartAsPNG(file, chart, 800, 600);
+    //File file = new File("cpu.png");
+    //ChartUtilities.saveChartAsPNG(file, chart, 800, 600);
     final ChartPanel chartPanel = new ChartPanel(chart);
     chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
     chartPanel.setMouseZoomable(true, false);
