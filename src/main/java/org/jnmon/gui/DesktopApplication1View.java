@@ -19,6 +19,7 @@ import java.io.File;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
@@ -267,21 +268,31 @@ public class DesktopApplication1View extends FrameView {
 
   private class LoadNMONFileTask extends org.jdesktop.application.Task<Object, Void> {
 
+    File file = null;
+
     LoadNMONFileTask(org.jdesktop.application.Application app) {
       // Runs on the EDT.  Copy GUI state that
       // doInBackground() depends on from parameters
       // to LoadNMONFileTask fields, here.
       super(app);
+      JFileChooser jFileChooser = new JFileChooser();
+      int returnVal = jFileChooser.showOpenDialog(jPanel1);
+      if (returnVal == JFileChooser.APPROVE_OPTION) {
+        file = jFileChooser.getSelectedFile();
+      }
     }
 
     @Override
     protected Object doInBackground() {
+      if (file == null) {
+        return null;
+      }
       Object result = null;
       try {
         // Your Task's code here.  This method runs
         // on a background thread, so don't reference
         // the Swing GUI from here.
-        File file = new File("/Users/franck/Documents/Logs/SCCDBDDR101P_100607_0005.nmon");
+        //File file = new File("/Users/franck/Documents/Logs/SCCDBDDR101P_100607_0005.nmon");
         NMon nmon = new NMon(file);
         result = nmon.createLPARDataSet();
       } catch (IOException ex) {
@@ -295,6 +306,8 @@ public class DesktopApplication1View extends FrameView {
 
     @Override
     protected void succeeded(Object result) {
+      if (result == null)
+        return;
       try {
         // Runs on the EDT.  Update the GUI based on
         // the result computed by doInBackground().
