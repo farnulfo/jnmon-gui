@@ -10,12 +10,14 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
@@ -36,14 +38,33 @@ public class NMon {
 
   private List<String> lines;
   private Map<String, Date> snapshotTimes;
+  private Map<String, List<String>> sections = new HashMap<String, List<String>>() {};
 
   public NMon(File filename) throws IOException, ParseException {
     lines = Files.readLines(filename, Charsets.UTF_8);
     Collections.sort(lines);
-    extractSnapshotTimes();
+    for (String line : lines) {
+      String[] tokens = line.split(",", 2);
+      String section = tokens[0];
+      List<String> list = sections.get(section);
+      if (list == null) {
+        list = new ArrayList<String>();
+        sections.put(section, list);
+      }
+      list.add(line);
+    }
+    extractSnapshotTimes(getItems("ZZZZ"));
   }
 
-  private void extractSnapshotTimes() throws ParseException {
+  public Set<String> getSections() {
+    return sections.keySet();
+  }
+
+  final public List<String> getItems(String section) {
+    return sections.get(section);
+  }
+
+  private void extractSnapshotTimes(List<String> lines) throws ParseException {
     snapshotTimes = new HashMap<String, Date>();
 
     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,dd-MMM-yyyy", Locale.US);
