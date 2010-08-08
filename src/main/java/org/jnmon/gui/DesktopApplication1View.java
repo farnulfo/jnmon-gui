@@ -16,6 +16,8 @@ import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Set;
+import java.util.Vector;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
@@ -34,6 +36,7 @@ public class DesktopApplication1View extends FrameView {
     super(app);
 
     initComponents();
+    jSectionsList.setListData(new Object[]{});
 
     // status bar initialization - message timeout, idle icon and busy animation, etc
     ResourceMap resourceMap = getResourceMap();
@@ -118,7 +121,7 @@ public class DesktopApplication1View extends FrameView {
     mainPanel = new javax.swing.JPanel();
     jSplitPane1 = new javax.swing.JSplitPane();
     jScrollPane2 = new javax.swing.JScrollPane();
-    jList2 = new javax.swing.JList();
+    jSectionsList = new javax.swing.JList();
     jPanel1 = new javax.swing.JPanel();
     menuBar = new javax.swing.JMenuBar();
     javax.swing.JMenu fileMenu = new javax.swing.JMenu();
@@ -140,13 +143,19 @@ public class DesktopApplication1View extends FrameView {
 
     jScrollPane2.setName("jScrollPane2"); // NOI18N
 
-    jList2.setModel(new javax.swing.AbstractListModel() {
+    jSectionsList.setModel(new javax.swing.AbstractListModel() {
       String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
       public int getSize() { return strings.length; }
       public Object getElementAt(int i) { return strings[i]; }
     });
-    jList2.setName("jList2"); // NOI18N
-    jScrollPane2.setViewportView(jList2);
+    jSectionsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+    jSectionsList.setName("jSectionsList"); // NOI18N
+    jSectionsList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+      public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+        jSectionsListValueChanged(evt);
+      }
+    });
+    jScrollPane2.setViewportView(jSectionsList);
 
     jSplitPane1.setLeftComponent(jScrollPane2);
 
@@ -261,6 +270,10 @@ public class DesktopApplication1View extends FrameView {
     setStatusBar(statusPanel);
   }// </editor-fold>//GEN-END:initComponents
 
+  private void jSectionsListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jSectionsListValueChanged
+    // TODO add your handling code here:
+  }//GEN-LAST:event_jSectionsListValueChanged
+
   @Action(block = Task.BlockingScope.APPLICATION)
   public Task LoadNMONFile() {
     return new LoadNMONFileTask(getApplication());
@@ -293,7 +306,7 @@ public class DesktopApplication1View extends FrameView {
         // on a background thread, so don't reference
         // the Swing GUI from here.
         //File file = new File("/Users/franck/Documents/Logs/SCCDBDDR101P_100607_0005.nmon");
-        NMon nmon = new NMon(file);
+        nmon = new NMon(file);
         result = nmon.createLPARDataSet();
       } catch (IOException ex) {
         Logger.getLogger(DesktopApplication1View.class.getName()).log(Level.SEVERE, null, ex);
@@ -311,6 +324,13 @@ public class DesktopApplication1View extends FrameView {
       try {
         // Runs on the EDT.  Update the GUI based on
         // the result computed by doInBackground().
+        Set<String> sections = nmon.getSections();
+        Vector<String> items = new Vector<String>();
+        for(String section : sections) {
+          items.add(section);
+        }
+        jSectionsList.setListData(items);
+
         XYDataset dataSet = (XYDataset) result;
         ChartPanel chartPanel = NMon.getLPARChartPanel("Titre", dataSet);
         jSplitPane1.setRightComponent(chartPanel);
@@ -321,11 +341,11 @@ public class DesktopApplication1View extends FrameView {
   }
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JList jList1;
-  private javax.swing.JList jList2;
   private javax.swing.JMenuItem jMenuItemOpenFile;
   private javax.swing.JPanel jPanel1;
   private javax.swing.JScrollPane jScrollPane1;
   private javax.swing.JScrollPane jScrollPane2;
+  private javax.swing.JList jSectionsList;
   private javax.swing.JSplitPane jSplitPane1;
   private javax.swing.JPanel mainPanel;
   private javax.swing.JMenuBar menuBar;
@@ -340,4 +360,6 @@ public class DesktopApplication1View extends FrameView {
   private final Icon[] busyIcons = new Icon[15];
   private int busyIconIndex = 0;
   private JDialog aboutBox;
+  private NMon nmon = null;
+
 }
