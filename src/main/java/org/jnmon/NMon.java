@@ -105,34 +105,6 @@ public class NMon {
     return dataset;
   }
 
-  public void addToTimeTableXYDataset(TimeTableXYDataset dataSet, String item, String name) {
-    if ("LPAR.PhysicalCPU".equals(item)) {
-// LPAR,Logical Partition SCCDBDDR101P,PhysicalCPU,virtualCPUs,logicalCPUs,poolCPUs,entitled,weight,PoolIdle,usedAllCPU%,usedPoolCPU%,SharedCPU,Capped,EC_User%,EC_Sys%,EC_Wait%,EC_Idle%,VP_User%,VP_Sys%,VP_Wait%,VP_Idle%,Folded,Pool_id
-// LPAR,T0001,0.872,4,8,8,0.55,192,0.00,10.91,10.91,1,0,85.89,69.80,0.17,2.77,11.81,9.60,0.02,0.38,0
-
-      boolean first = true;
-      int i = 0;
-      for (String line : lines) {
-        String[] tokens = line.split(",", 2);
-        if (tokens[0].equals("LPAR")) {
-          if (first) {
-            first = false;
-          } else {
-            String items[] = tokens[1].split(",");
-
-            String snapshot = items[0];
-            Second second = new Second(snapshotTimes.get(snapshot));
-
-            double physicalCPU = Double.valueOf(items[1]);
-
-            dataSet.add(second, physicalCPU, name);
-          }
-          i++;
-        }
-      }
-    }
-  }
-
   public static ChartPanel getLPARChartPanel(final String title, XYDataset dataSet) throws IOException {
 
     //createDatasetFromTopas();
