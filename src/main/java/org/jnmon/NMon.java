@@ -38,7 +38,8 @@ public class NMon {
 
   private List<String> lines;
   private Map<String, Date> snapshotTimes;
-  private Map<String, List<String>> sections = new HashMap<String, List<String>>() {};
+  private Map<String, List<String>> sections = new HashMap<String, List<String>>() {
+  };
 
   public NMon(File filename) throws IOException, ParseException {
     lines = Files.readLines(filename, Charsets.UTF_8);
@@ -56,8 +57,13 @@ public class NMon {
     extractSnapshotTimes(getItems("ZZZZ"));
   }
 
-  public Set<String> getSections() {
-    return sections.keySet();
+  public List<String> getSections() {
+    List<String> items = new ArrayList<String>();
+    for (String section : sections.keySet()) {
+      items.add(section);
+    }
+    Collections.sort(items);
+    return items;
   }
 
   final public List<String> getItems(String section) {

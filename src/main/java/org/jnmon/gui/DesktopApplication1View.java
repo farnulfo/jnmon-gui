@@ -324,12 +324,7 @@ public class DesktopApplication1View extends FrameView {
       try {
         // Runs on the EDT.  Update the GUI based on
         // the result computed by doInBackground().
-        Set<String> sections = nmon.getSections();
-        Vector<String> items = new Vector<String>();
-        for(String section : sections) {
-          items.add(section);
-        }
-        jSectionsList.setListData(items);
+        jSectionsList.setListData(nmon.getSections().toArray());
 
         XYDataset dataSet = (XYDataset) result;
         ChartPanel chartPanel = NMon.getLPARChartPanel("Titre", dataSet);
