@@ -305,7 +305,6 @@ public class DesktopApplication1View extends FrameView {
         // Your Task's code here.  This method runs
         // on a background thread, so don't reference
         // the Swing GUI from here.
-        //File file = new File("/Users/franck/Documents/Logs/SCCDBDDR101P_100607_0005.nmon");
         nmon = new NMon(file);
         result = nmon.createLPARDataSet();
       } catch (IOException ex) {
