@@ -266,13 +266,8 @@ public class DesktopApplication1View extends FrameView {
       Logger.getLogger(DesktopApplication1View.class.getName()).log(Level.SEVERE, sectionName);
 
       if ("LPAR".equals(sectionName)) {
-        try {
-          XYDataset dataSet = nmon.createLPARDataSet();
-          ChartPanel chartPanel = NMon.getLPARChartPanel("Titre", dataSet);
+          ChartPanel chartPanel = nmon.getLPARChartPanel();
           jSplitPane1.setRightComponent(chartPanel);
-        } catch (IOException ex) {
-          Logger.getLogger(DesktopApplication1View.class.getName()).log(Level.SEVERE, null, ex);
-        }
       } else {
         jSplitPane1.setRightComponent(new JPanel());
       }
