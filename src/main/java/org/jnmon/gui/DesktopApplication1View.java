@@ -267,8 +267,7 @@ public class DesktopApplication1View extends FrameView {
 
       if ("LPAR".equals(sectionName)) {
         try {
-          Object result = nmon.createLPARDataSet();
-          XYDataset dataSet = (XYDataset) result;
+          XYDataset dataSet = nmon.createLPARDataSet();
           ChartPanel chartPanel = NMon.getLPARChartPanel("Titre", dataSet);
           jSplitPane1.setRightComponent(chartPanel);
         } catch (IOException ex) {
