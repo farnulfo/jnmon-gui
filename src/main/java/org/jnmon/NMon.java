@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
@@ -46,13 +45,13 @@ public class NMon {
     Collections.sort(lines);
     for (String line : lines) {
       String[] tokens = line.split(",", 2);
-      String section = tokens[0];
-      List<String> list = sections.get(section);
-      if (list == null) {
-        list = new ArrayList<String>();
-        sections.put(section, list);
+      String sectionName = tokens[0];
+      List<String> section = sections.get(sectionName);
+      if (section == null) {
+        section = new ArrayList<String>();
+        sections.put(sectionName, section);
       }
-      list.add(line);
+      section.add(line);
     }
     extractSnapshotTimes(getItems("ZZZZ"));
   }
