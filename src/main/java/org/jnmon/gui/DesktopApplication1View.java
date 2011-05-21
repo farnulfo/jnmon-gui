@@ -21,6 +21,7 @@ import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
 import org.jnmon.NMon;
@@ -263,6 +264,19 @@ public class DesktopApplication1View extends FrameView {
       int firstIndex = evt.getFirstIndex();
       String sectionName = (String) jSectionsList.getModel().getElementAt(firstIndex);
       Logger.getLogger(DesktopApplication1View.class.getName()).log(Level.SEVERE, sectionName);
+
+      if ("LPAR".equals(sectionName)) {
+        try {
+          Object result = nmon.createLPARDataSet();
+          XYDataset dataSet = (XYDataset) result;
+          ChartPanel chartPanel = NMon.getLPARChartPanel("Titre", dataSet);
+          jSplitPane1.setRightComponent(chartPanel);
+        } catch (IOException ex) {
+          Logger.getLogger(DesktopApplication1View.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      } else {
+        jSplitPane1.setRightComponent(new JPanel());
+      }
     }
   }//GEN-LAST:event_jSectionsListValueChanged
 
@@ -310,20 +324,12 @@ public class DesktopApplication1View extends FrameView {
 
     @Override
     protected void succeeded(Object result) {
+      // Runs on the EDT.  Update the GUI based on
+      // the result computed by doInBackground().
       if (result == null) {
         return;
       }
-      try {
-        // Runs on the EDT.  Update the GUI based on
-        // the result computed by doInBackground().
-        jSectionsList.setListData(nmon.getSections().toArray());
-
-        XYDataset dataSet = (XYDataset) result;
-        ChartPanel chartPanel = NMon.getLPARChartPanel("Titre", dataSet);
-        jSplitPane1.setRightComponent(chartPanel);
-      } catch (IOException ex) {
-        Logger.getLogger(DesktopApplication1View.class.getName()).log(Level.SEVERE, null, ex);
-      }
+      jSectionsList.setListData(nmon.getSections().toArray());
     }
   }
   // Variables declaration - do not modify//GEN-BEGIN:variables
