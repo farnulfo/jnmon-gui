@@ -318,8 +318,9 @@ public class DesktopApplication1View extends FrameView {
 
     @Override
     protected void succeeded(Object result) {
-      if (result == null)
+      if (result == null) {
         return;
+      }
       try {
         // Runs on the EDT.  Update the GUI based on
         // the result computed by doInBackground().
@@ -355,5 +356,4 @@ public class DesktopApplication1View extends FrameView {
   private int busyIconIndex = 0;
   private JDialog aboutBox;
   private NMon nmon = null;
-
 }
