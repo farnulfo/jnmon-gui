@@ -16,8 +16,6 @@ import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Set;
-import java.util.Vector;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
@@ -134,8 +132,6 @@ public class DesktopApplication1View extends FrameView {
     statusMessageLabel = new javax.swing.JLabel();
     statusAnimationLabel = new javax.swing.JLabel();
     progressBar = new javax.swing.JProgressBar();
-    jScrollPane1 = new javax.swing.JScrollPane();
-    jList1 = new javax.swing.JList();
 
     mainPanel.setName("mainPanel"); // NOI18N
 
@@ -255,16 +251,6 @@ public class DesktopApplication1View extends FrameView {
         .add(3, 3, 3))
     );
 
-    jScrollPane1.setName("jScrollPane1"); // NOI18N
-
-    jList1.setModel(new javax.swing.AbstractListModel() {
-      String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-      public int getSize() { return strings.length; }
-      public Object getElementAt(int i) { return strings[i]; }
-    });
-    jList1.setName("jList1"); // NOI18N
-    jScrollPane1.setViewportView(jList1);
-
     setComponent(mainPanel);
     setMenuBar(menuBar);
     setStatusBar(statusPanel);
@@ -272,6 +258,12 @@ public class DesktopApplication1View extends FrameView {
 
   private void jSectionsListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jSectionsListValueChanged
     // TODO add your handling code here:
+    boolean isAdjusting = evt.getValueIsAdjusting();
+    if (!isAdjusting) {
+      int firstIndex = evt.getFirstIndex();
+      String sectionName = (String) jSectionsList.getModel().getElementAt(firstIndex);
+      Logger.getLogger(DesktopApplication1View.class.getName()).log(Level.SEVERE, sectionName);
+    }
   }//GEN-LAST:event_jSectionsListValueChanged
 
   @Action(block = Task.BlockingScope.APPLICATION)
@@ -335,10 +327,8 @@ public class DesktopApplication1View extends FrameView {
     }
   }
   // Variables declaration - do not modify//GEN-BEGIN:variables
-  private javax.swing.JList jList1;
   private javax.swing.JMenuItem jMenuItemOpenFile;
   private javax.swing.JPanel jPanel1;
-  private javax.swing.JScrollPane jScrollPane1;
   private javax.swing.JScrollPane jScrollPane2;
   private javax.swing.JList jSectionsList;
   private javax.swing.JSplitPane jSplitPane1;
