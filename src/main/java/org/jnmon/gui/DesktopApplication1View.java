@@ -22,6 +22,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.ListSelectionModel;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
 import org.jnmon.NMon;
@@ -261,7 +262,8 @@ public class DesktopApplication1View extends FrameView {
     // TODO add your handling code here:
     boolean isAdjusting = evt.getValueIsAdjusting();
     if (!isAdjusting) {
-      int firstIndex = evt.getFirstIndex();
+      ListSelectionModel lsm = jSectionsList.getSelectionModel();
+      int firstIndex = lsm.getMinSelectionIndex();
       String sectionName = (String) jSectionsList.getModel().getElementAt(firstIndex);
       Logger.getLogger(DesktopApplication1View.class.getName()).log(Level.SEVERE, sectionName);
 
