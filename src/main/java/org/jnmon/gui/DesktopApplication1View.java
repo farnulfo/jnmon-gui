@@ -16,12 +16,15 @@ import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.List;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
@@ -268,8 +271,19 @@ public class DesktopApplication1View extends FrameView {
       Logger.getLogger(DesktopApplication1View.class.getName()).log(Level.SEVERE, sectionName);
 
       if ("LPAR".equals(sectionName)) {
-          ChartPanel chartPanel = nmon.getLPARChartPanel();
-          jSplitPane1.setRightComponent(chartPanel);
+        ChartPanel chartPanel = nmon.getLPARChartPanel();
+        jSplitPane1.setRightComponent(chartPanel);
+      } else if ("AAA".equals(sectionName)) {
+        List<String> data = nmon.getSection(sectionName);
+        StringBuilder sb = new StringBuilder();
+        for (String line : data) {
+          sb.append(line);
+          sb.append("\n");
+        }
+        JTextArea jTextArea = new JTextArea();
+        jTextArea.setText(sb.toString());
+        JScrollPane jScrollPane = new JScrollPane(jTextArea);
+        jSplitPane1.setRightComponent(jScrollPane);
       } else {
         jSplitPane1.setRightComponent(new JPanel());
       }
