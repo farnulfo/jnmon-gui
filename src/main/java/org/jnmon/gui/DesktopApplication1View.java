@@ -24,7 +24,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
@@ -272,7 +274,10 @@ public class DesktopApplication1View extends FrameView {
 
       if ("LPAR".equals(sectionName)) {
         ChartPanel chartPanel = nmon.getLPARChartPanel();
-        jSplitPane1.setRightComponent(chartPanel);
+        JTabbedPane jTabbedPane = new JTabbedPane();
+        jTabbedPane.addTab("LPAR", chartPanel);
+        jTabbedPane.addTab("LPAR2", nmon.getLPAR2ChartPanel());
+        jSplitPane1.setRightComponent(jTabbedPane);
       } else if ("AAA".equals(sectionName)) {
         List<String> data = nmon.getSection(sectionName);
         StringBuilder sb = new StringBuilder();
