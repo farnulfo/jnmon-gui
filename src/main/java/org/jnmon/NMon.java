@@ -6,8 +6,13 @@ package org.jnmon;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -47,7 +53,19 @@ public class NMon {
 
     public NMon(File filename) throws IOException, ParseException {
         this.filepath = filename.getCanonicalPath();
-        lines = Files.readLines(filename, Charsets.UTF_8);
+        if (filename.getName().endsWith(".gz")) {
+            InputStream fileStream = new FileInputStream(filename);
+            InputStream gzipStream = new GZIPInputStream(fileStream);
+            Reader decoder = new InputStreamReader(gzipStream);
+            BufferedReader bufferedReader = new BufferedReader(decoder);
+            lines = com.google.common.io.CharStreams.readLines(bufferedReader);
+            bufferedReader.close();
+            decoder.close();
+            gzipStream.close();
+            fileStream.close();
+        } else {
+            lines = Files.readLines(filename, Charsets.UTF_8);
+        }
         Collections.sort(lines);
         for (String line : lines) {
             String[] tokens = line.split(",", 2);
@@ -254,11 +272,11 @@ public class NMon {
         localDateAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
         localXYPlot.setDomainAxis(localDateAxis);
         //localXYPlot.setForegroundAlpha(0.5F);
-        
+
         final ValueAxis rangeAxis = new NumberAxis("100 %");
         rangeAxis.setRange(0, 100);
         localXYPlot.setRangeAxis(rangeAxis);
-        
+
         XYItemRenderer localXYItemRenderer = localXYPlot.getRenderer();
         localXYItemRenderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator("{0}: ({1}, {2})", new SimpleDateFormat("d-MMM-yyyy"), new DecimalFormat("#,##0.00")));
 
