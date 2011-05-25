@@ -278,7 +278,7 @@ public class DesktopApplication1View extends FrameView {
         jTabbedPane.addTab("LPAR", chartPanel);
         jTabbedPane.addTab("LPAR2", nmon.getLPAR2ChartPanel());
         jSplitPane1.setRightComponent(jTabbedPane);
-      } else if ("AAA".equals(sectionName)) {
+      } else {
         List<String> data = nmon.getSection(sectionName);
         StringBuilder sb = new StringBuilder();
         for (String line : data) {
@@ -289,8 +289,6 @@ public class DesktopApplication1View extends FrameView {
         jTextArea.setText(sb.toString());
         JScrollPane jScrollPane = new JScrollPane(jTextArea);
         jSplitPane1.setRightComponent(jScrollPane);
-      } else {
-        jSplitPane1.setRightComponent(new JPanel());
       }
     }
   }//GEN-LAST:event_jSectionsListValueChanged
