@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
@@ -33,14 +32,15 @@ import org.jfree.chart.axis.DateTickUnitType;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
-import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.SeriesRenderingOrder;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.StackedXYAreaRenderer;
+import org.jfree.chart.renderer.xy.StackedXYAreaRenderer2;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.time.TimeTableXYDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleEdge;
 
@@ -122,7 +122,7 @@ public class NMon {
 
     rangeAxis.setRange(0, getNumberOfActiveCPU());
 
-    final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(/* lines = */ true, /* shapes = */ false);
+    final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(/* lines = */true, /* shapes = */ false);
     final XYPlot plot = new XYPlot(createLPARDataSet(), domainAxis, rangeAxis, renderer);
 
     final JFreeChart chart = new JFreeChart("LPAR : " + filepath, plot);
@@ -189,7 +189,7 @@ public class NMon {
     return dataset;
   }
 
-  public XYDataset createLPAR_CPU_vs_VP_DataSet() {
+  public TimeTableXYDataset createLPAR_CPU_vs_VP_DataSet() {
 // LPAR,Logical Partition SCCDBDDR101P,PhysicalCPU,virtualCPUs,logicalCPUs,poolCPUs,entitled,weight,PoolIdle,usedAllCPU%,usedPoolCPU%,SharedCPU,Capped,EC_User%,EC_Sys%,EC_Wait%,EC_Idle%,VP_User%,VP_Sys%,VP_Wait%,VP_Idle%,Folded,Pool_id
 // LPAR,T0001,0.872,4,8,8,0.55,192,0.00,10.91,10.91,1,0,85.89,69.80,0.17,2.77,11.81,9.60,0.02,0.38,0
 //  1 - PhysicalCPU
@@ -213,10 +213,8 @@ public class NMon {
 // 19 - VP_Idle%
 // 20 - Folded
 // 21 - Pool_id
-//VP_User%,VP_Sys%,VP_Wait%
-    final TimeSeries s1 = new TimeSeries("VP_User%");
-    final TimeSeries s2 = new TimeSeries("VP_Sys%");
-    final TimeSeries s3 = new TimeSeries("VP_Wait%");
+
+    TimeTableXYDataset localTimeTableXYDataset = new TimeTableXYDataset();
 
     boolean first = true;
     int i = 0;
@@ -236,55 +234,39 @@ public class NMon {
           double vp_sys = Double.valueOf(items[17]);
           double vp_wait = Double.valueOf(items[18]);
 
-          s1.add(second, vp_user);
-          s2.add(second, vp_sys);
-          s3.add(second, vp_wait);
+          localTimeTableXYDataset.add(new Second(snapshotTimes.get(snapshot)), vp_user, "VP_User%");
+          localTimeTableXYDataset.add(new Second(snapshotTimes.get(snapshot)), vp_sys, "VP_Sys%");
+          localTimeTableXYDataset.add(new Second(snapshotTimes.get(snapshot)), vp_wait, "VP_Wait%");
         }
         i++;
       }
     }
-    final TimeSeriesCollection dataset = new TimeSeriesCollection();
-    dataset.addSeries(s1);
-    dataset.addSeries(s2);
-    dataset.addSeries(s3);
-    /*
-     * dataset.addSeries(MovingAverage.createPointMovingAverage(s1, "AVG 20", 20));
-    dataset.addSeries(MovingAverage.createPointMovingAverage(s1, "AVG 12", 12));
-    dataset.addSeries(MovingAverage.createPointMovingAverage(s1, "AVG 10", 10));
-    dataset.addSeries(MovingAverage.createPointMovingAverage(s1, "AVG 5", 5));
-    dataset.addSeries(MovingAverage.createPointMovingAverage(s1, "AVG 3", 3));
-     * 
-     */
-    //dataset.addSeries(MovingAverage.createMovingAverage(s1, "-AVG", 50));
-
-
-    return dataset;
+    return localTimeTableXYDataset;
   }
 
   public ChartPanel getLPAR2ChartPanel() {
-    JFreeChart localJFreeChart = ChartFactory.createXYAreaChart("XY Area Chart Demo 2", "Time", "Value", createLPAR_CPU_vs_VP_DataSet(), PlotOrientation.VERTICAL, true, true, false);
-    XYPlot localXYPlot = (XYPlot) localJFreeChart.getPlot();
-    localXYPlot.setDomainPannable(true);
-    DateAxis localDateAxis = new DateAxis("Time");
-    localDateAxis.setLowerMargin(0.0D);
-    localDateAxis.setUpperMargin(0.0D);
-    localDateAxis.setVerticalTickLabels(true);
-    localDateAxis.setTickUnit(new DateTickUnit(DateTickUnitType.HOUR, 1));
-    localDateAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
-    localXYPlot.setDomainAxis(localDateAxis);
-    //localXYPlot.setForegroundAlpha(0.5F);
+    final DateAxis domainAxis = new DateAxis("Time");
+    domainAxis.setVerticalTickLabels(true);
+    domainAxis.setTickUnit(new DateTickUnit(DateTickUnitType.HOUR, 1));
+    domainAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
+    domainAxis.setLowerMargin(0.01);
+    domainAxis.setUpperMargin(0.01);
+    final ValueAxis rangeAxis = new NumberAxis();
 
-    final ValueAxis rangeAxis = new NumberAxis("100 %");
+    // VP_User%, VP_Sys% and VP_Wait% are in %
     rangeAxis.setRange(0, 100);
-    localXYPlot.setRangeAxis(rangeAxis);
 
-    XYItemRenderer localXYItemRenderer = localXYPlot.getRenderer();
-    localXYItemRenderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator("{0}: ({1}, {2})", new SimpleDateFormat("d-MMM-yyyy"), new DecimalFormat("#,##0.00")));
+    final StackedXYAreaRenderer renderer = new StackedXYAreaRenderer(StackedXYAreaRenderer.AREA);
+    renderer.setOutline(false);
+    renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator("{0}: ({1}, {2})", new SimpleDateFormat("HH:mm:ss"), new DecimalFormat("#,##0.00")));
+    final XYPlot plot = new XYPlot(createLPAR_CPU_vs_VP_DataSet(), domainAxis, rangeAxis, renderer);
+    // To avoid bug ID: 1225830 http://sourceforge.net/tracker/?func=detail&aid=1225830&group_id=15494&atid=115494
+    plot.setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD);
 
+    final JFreeChart chart = new JFreeChart("CPU% vs VPs", plot);
+    chart.getLegend().setPosition(RectangleEdge.TOP);
 
-    //File file = new File("cpu.png");
-    //ChartUtilities.saveChartAsPNG(file, chart, 800, 600);
-    final ChartPanel chartPanel = new ChartPanel(localJFreeChart);
+    final ChartPanel chartPanel = new ChartPanel(chart);
     chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
     chartPanel.setMouseZoomable(true, false);
 
