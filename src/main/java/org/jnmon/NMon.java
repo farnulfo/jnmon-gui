@@ -37,6 +37,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -121,7 +122,7 @@ public class NMon {
 
     rangeAxis.setRange(0, getNumberOfActiveCPU());
 
-    final StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.LINES);
+    final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(/* lines = */ true, /* shapes = */ false);
     final XYPlot plot = new XYPlot(createLPARDataSet(), domainAxis, rangeAxis, renderer);
 
     final JFreeChart chart = new JFreeChart("LPAR : " + filepath, plot);
