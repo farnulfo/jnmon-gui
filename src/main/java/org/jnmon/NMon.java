@@ -235,9 +235,9 @@ public class NMon {
           double vp_sys = Double.valueOf(items[17]);
           double vp_wait = Double.valueOf(items[18]);
 
-          localTimeTableXYDataset.add(new Second(snapshotTimes.get(snapshot)), vp_user, "VP_User%");
-          localTimeTableXYDataset.add(new Second(snapshotTimes.get(snapshot)), vp_sys, "VP_Sys%");
-          localTimeTableXYDataset.add(new Second(snapshotTimes.get(snapshot)), vp_wait, "VP_Wait%");
+          localTimeTableXYDataset.add(second, vp_user, "VP_User%");
+          localTimeTableXYDataset.add(second, vp_sys, "VP_Sys%");
+          localTimeTableXYDataset.add(second, vp_wait, "VP_Wait%");
         }
         i++;
       }
@@ -362,9 +362,9 @@ public class NMon {
           double poolCPUs = Double.valueOf(items[4]);
           double poolIdle = Double.valueOf(items[7]);
 
-          localTimeTableXYDataset.add(new Second(snapshotTimes.get(snapshot)), physical_CPU, "PhysicalCPU");
-          localTimeTableXYDataset.add(new Second(snapshotTimes.get(snapshot)), poolCPUs-physical_CPU, "OtherLPARs");
-          localTimeTableXYDataset.add(new Second(snapshotTimes.get(snapshot)), poolIdle, "PoolIdle");
+          localTimeTableXYDataset.add(second, physical_CPU, "PhysicalCPU");
+          localTimeTableXYDataset.add(second, poolCPUs-physical_CPU, "OtherLPARs");
+          localTimeTableXYDataset.add(second, poolIdle, "PoolIdle");
         }
         i++;
       }
