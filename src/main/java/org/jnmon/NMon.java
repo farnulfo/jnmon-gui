@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.zip.GZIPInputStream;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -49,7 +51,7 @@ public class NMon {
 
   private String filepath;
   private List<String> lines;
-  private Map<String, Date> snapshotTimes;
+  private SortedMap<String, Date> snapshotTimes = new TreeMap<String, Date>();
   private Map<String, List<String>> sections = new HashMap<String, List<String>>() {
   };
 
@@ -96,8 +98,6 @@ public class NMon {
   }
 
   private void extractSnapshotTimes(List<String> lines) throws ParseException {
-    snapshotTimes = new HashMap<String, Date>();
-
     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,dd-MMM-yyyy", Locale.US);
     sdf.setLenient(false);
     for (String line : lines) {
