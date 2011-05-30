@@ -276,7 +276,8 @@ public class DesktopApplication1View extends FrameView {
         ChartPanel chartPanel = nmon.getLPARChartPanel();
         JTabbedPane jTabbedPane = new JTabbedPane();
         jTabbedPane.addTab("LPAR", chartPanel);
-        jTabbedPane.addTab("LPAR2", nmon.getLPAR2ChartPanel());
+        jTabbedPane.addTab("CPU% vs VPs", nmon.getLPAR2ChartPanel());
+        jTabbedPane.addTab("Share Pool Utilisation", nmon.getSharePoolUtilisation());
         jSplitPane1.setRightComponent(jTabbedPane);
       } else {
         List<String> data = nmon.getSection(sectionName);

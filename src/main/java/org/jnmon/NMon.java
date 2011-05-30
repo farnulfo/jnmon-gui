@@ -6,6 +6,7 @@ package org.jnmon;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -285,5 +286,89 @@ public class NMon {
     }
     return Integer.valueOf(numberOfActiveCPU);
 
+  }
+
+  public Component getSharePoolUtilisation() {
+    final DateAxis domainAxis = new DateAxis("Time");
+    domainAxis.setVerticalTickLabels(true);
+    domainAxis.setTickUnit(new DateTickUnit(DateTickUnitType.HOUR, 1));
+    domainAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
+    domainAxis.setLowerMargin(0.01);
+    domainAxis.setUpperMargin(0.01);
+    final ValueAxis rangeAxis = new NumberAxis();
+
+    
+    rangeAxis.setRange(0, getNumberOfActiveCPU());
+
+    final StackedXYAreaRenderer renderer = new StackedXYAreaRenderer(StackedXYAreaRenderer.AREA);
+    renderer.setOutline(false);
+    renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator("{0}: ({1}, {2})", new SimpleDateFormat("HH:mm:ss"), new DecimalFormat("#,##0.00")));
+    final XYPlot plot = new XYPlot(createSharePoolUtilisationDataSet(), domainAxis, rangeAxis, renderer);
+    // To avoid bug ID: 1225830 http://sourceforge.net/tracker/?func=detail&aid=1225830&group_id=15494&atid=115494
+    plot.setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD);
+
+    final JFreeChart chart = new JFreeChart("Share Pool Utilisation", plot);
+    chart.getLegend().setPosition(RectangleEdge.TOP);
+
+    final ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+    chartPanel.setMouseZoomable(true, false);
+
+    return chartPanel;
+  }
+
+  private TimeTableXYDataset createSharePoolUtilisationDataSet() {
+// LPAR,Logical Partition SCCDBDDR101P,PhysicalCPU,virtualCPUs,logicalCPUs,poolCPUs,entitled,weight,PoolIdle,usedAllCPU%,usedPoolCPU%,SharedCPU,Capped,EC_User%,EC_Sys%,EC_Wait%,EC_Idle%,VP_User%,VP_Sys%,VP_Wait%,VP_Idle%,Folded,Pool_id
+// LPAR,T0001,0.872,4,8,8,0.55,192,0.00,10.91,10.91,1,0,85.89,69.80,0.17,2.77,11.81,9.60,0.02,0.38,0
+//  1 - PhysicalCPU
+//  2 - virtualCPUs
+//  3 - logicalCPUs
+//  4 - poolCPUs
+//  5 - entitled
+//  6 - weight
+//  7 - PoolIdle
+//  8 - usedAllCPU%
+//  9 - usedPoolCPU%
+// 10 - SharedCPU
+// 11 - Capped
+// 12 - EC_User%
+// 13 - EC_Sys%
+// 14 - EC_Wait%
+// 15 - EC_Idle%
+// 16 - VP_User%
+// 17 - VP_Sys%
+// 18 - VP_Wait%
+// 19 - VP_Idle%
+// 20 - Folded
+// 21 - Pool_id
+
+    TimeTableXYDataset localTimeTableXYDataset = new TimeTableXYDataset();
+
+    boolean first = true;
+    int i = 0;
+    for (String line : lines) {
+      String[] tokens = line.split(",", 2);
+      if (tokens[0].equals("LPAR")) {
+        if (first) {
+          first = false;
+        } else //if ((i % 10) == 0)
+        {
+          String items[] = tokens[1].split(",");
+
+          String snapshot = items[0];
+          Second second = new Second(snapshotTimes.get(snapshot));
+
+          double physical_CPU = Double.valueOf(items[1]);
+          double poolCPUs = Double.valueOf(items[4]);
+          double poolIdle = Double.valueOf(items[7]);
+
+          localTimeTableXYDataset.add(new Second(snapshotTimes.get(snapshot)), physical_CPU, "PhysicalCPU");
+          localTimeTableXYDataset.add(new Second(snapshotTimes.get(snapshot)), poolCPUs-physical_CPU, "OtherLPARs");
+          localTimeTableXYDataset.add(new Second(snapshotTimes.get(snapshot)), poolIdle, "PoolIdle");
+        }
+        i++;
+      }
+    }
+    return localTimeTableXYDataset;
   }
 }
