@@ -279,6 +279,10 @@ public class DesktopApplication1View extends FrameView {
         jTabbedPane.addTab("CPU% vs VPs", nmon.getLPAR2ChartPanel());
         jTabbedPane.addTab("Share Pool Utilisation", nmon.getSharePoolUtilisation());
         jSplitPane1.setRightComponent(jTabbedPane);
+      } else if ("MEM".equals(sectionName)) {
+        JTabbedPane jTabbedPane = new JTabbedPane();
+        jTabbedPane.addTab("Memory", nmon.getMemoryRealFree());
+        jSplitPane1.setRightComponent(jTabbedPane);
       } else {
         List<String> data = nmon.getSection(sectionName);
         StringBuilder sb = new StringBuilder();

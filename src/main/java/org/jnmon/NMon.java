@@ -6,6 +6,7 @@ package org.jnmon;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import java.awt.BasicStroke;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.File;
@@ -371,4 +372,81 @@ public class NMon {
     }
     return localTimeTableXYDataset;
   }
+
+  public Component getMemoryRealFree() {
+    final DateAxis domainAxis = new DateAxis("Time");
+    domainAxis.setVerticalTickLabels(true);
+    domainAxis.setTickUnit(new DateTickUnit(DateTickUnitType.HOUR, 1));
+    domainAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
+    domainAxis.setLowerMargin(0.01);
+    domainAxis.setUpperMargin(0.01);
+    final ValueAxis rangeAxis = new NumberAxis();
+
+    //rangeAxis.setRange(0, getNumberOfActiveCPU());
+
+    final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(/* lines = */true, /* shapes = */ false);
+    XYDataset dataSet = createMemoryRealFreeDataSet();
+    for (int i = 0; i < dataSet.getSeriesCount(); i++) {
+      renderer.setSeriesStroke(i, new BasicStroke( 3 ) );
+    }
+    
+    final XYPlot plot = new XYPlot(dataSet, domainAxis, rangeAxis, renderer);
+
+    final JFreeChart chart = new JFreeChart("Memory : " + filepath, plot);
+    chart.getLegend().setPosition(RectangleEdge.TOP);
+
+    //File file = new File("cpu.png");
+    //ChartUtilities.saveChartAsPNG(file, chart, 800, 600);
+    final ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+    chartPanel.setMouseZoomable(true, false);
+
+    return chartPanel;
+  }
+
+  private XYDataset createMemoryRealFreeDataSet() {
+// MEM,Memory SVCDBATTR02Q,Real Free %,Virtual free %,Real free(MB),Virtual free(MB),Real total(MB),Virtual total(MB)
+// MEM,T0001,63.7,99.9,5217.6,6136.1,8192.0,6144.0
+
+    final TimeSeries s1 = new TimeSeries("Real free(MB)");
+    final TimeSeries s2 = new TimeSeries("Virtual free(MB)");
+    final TimeSeries s3 = new TimeSeries("Real total(MB)");
+    final TimeSeries s4 = new TimeSeries("Virtual total(MB)");
+
+    boolean first = true;
+    int i = 0;
+    for (String line : lines) {
+      String[] tokens = line.split(",", 2);
+      if (tokens[0].equals("MEM")) {
+        if (first) {
+          first = false;
+        } else //if ((i % 10) == 0)
+        {
+          String items[] = tokens[1].split(",");
+
+          String snapshot = items[0];
+          Second second = new Second(snapshotTimes.get(snapshot));
+
+          double realFree = Double.valueOf(items[3]);
+          double virtualFree = Double.valueOf(items[4]);
+          double realTotal = Double.valueOf(items[5]);
+          double virtualTotal = Double.valueOf(items[6]);
+
+          s1.add(second, realFree);
+          s2.add(second, virtualFree);
+          s3.add(second, realTotal);
+          s4.add(second, virtualTotal);
+        }
+        i++;
+      }
+    }
+    final TimeSeriesCollection dataset = new TimeSeriesCollection();
+    dataset.addSeries(s1);
+    dataset.addSeries(s2);
+    dataset.addSeries(s3);
+    dataset.addSeries(s4);
+
+    return dataset;
+  }
+
 }
