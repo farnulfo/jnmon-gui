@@ -269,6 +269,9 @@ public class DesktopApplication1View extends FrameView {
     if (!isAdjusting) {
       ListSelectionModel lsm = jSectionsList.getSelectionModel();
       int firstIndex = lsm.getMinSelectionIndex();
+      if (firstIndex == -1) {
+        return;
+      }
       String sectionName = (String) jSectionsList.getModel().getElementAt(firstIndex);
       Logger.getLogger(DesktopApplication1View.class.getName()).log(Level.SEVERE, sectionName);
 
@@ -329,8 +332,7 @@ public class DesktopApplication1View extends FrameView {
         // Your Task's code here.  This method runs
         // on a background thread, so don't reference
         // the Swing GUI from here.
-        nmon = new NMon(file);
-        result = nmon.createLPARDataSet();
+        result = new NMon(file);
       } catch (IOException ex) {
         Logger.getLogger(DesktopApplication1View.class.getName()).log(Level.SEVERE, null, ex);
       } catch (ParseException ex) {
@@ -347,6 +349,8 @@ public class DesktopApplication1View extends FrameView {
       if (result == null) {
         return;
       }
+      jSplitPane1.setRightComponent(new JPanel());
+      nmon = (NMon) result;
       jSectionsList.setListData(nmon.getSections().toArray());
     }
   }
