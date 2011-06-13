@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -83,6 +84,7 @@ public class NMon {
       section.add(line);
     }
     extractSnapshotTimes(getSection("ZZZZ"));
+    insertDiskSum();
   }
 
   public List<String> getSections() {
@@ -298,7 +300,7 @@ public class NMon {
     domainAxis.setUpperMargin(0.01);
     final ValueAxis rangeAxis = new NumberAxis();
 
-    
+
     rangeAxis.setRange(0, getNumberOfActiveCPU());
 
     final StackedXYAreaRenderer renderer = new StackedXYAreaRenderer(StackedXYAreaRenderer.AREA);
@@ -364,7 +366,7 @@ public class NMon {
           double poolIdle = Double.valueOf(items[7]);
 
           localTimeTableXYDataset.add(second, physical_CPU, "PhysicalCPU");
-          localTimeTableXYDataset.add(second, poolCPUs-physical_CPU, "OtherLPARs");
+          localTimeTableXYDataset.add(second, poolCPUs - physical_CPU, "OtherLPARs");
           localTimeTableXYDataset.add(second, poolIdle, "PoolIdle");
         }
         i++;
@@ -387,9 +389,9 @@ public class NMon {
     final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(/* lines = */true, /* shapes = */ false);
     XYDataset dataSet = createMemoryRealFreeDataSet();
     for (int i = 0; i < dataSet.getSeriesCount(); i++) {
-      renderer.setSeriesStroke(i, new BasicStroke( 3 ) );
+      renderer.setSeriesStroke(i, new BasicStroke(3));
     }
-    
+
     final XYPlot plot = new XYPlot(dataSet, domainAxis, rangeAxis, renderer);
 
     final JFreeChart chart = new JFreeChart("Memory : " + filepath, plot);
@@ -449,4 +451,49 @@ public class NMon {
     return dataset;
   }
 
+  private void insertDiskSum() {
+    // DISKREAD,T0001,0.5,1130.2,3038.8,0.0,0.5
+    // DISKWRITE,T0001,0.0,0.0,436.5,0.0,0.0
+    List<String> diskReadSection = getSection("DISKREAD");
+    List<String> diskWriteSection = getSection("DISKWRITE");
+    List<String> diskIO = getSection("DISKXFER");
+
+    if ((diskReadSection.size() == diskWriteSection.size())
+            && (diskReadSection.size() == diskIO.size())) {
+      ArrayList<String> diskSum = new ArrayList<String>();
+      diskSum.add("DISK_SUMM,Disk total KB/s SVCDBATTR02Q,Disk Read KB/s,Disk Write KB/s,IO/sec");
+      for (int i = 1; i < diskReadSection.size(); i++) {
+        String read = diskReadSection.get(i);
+        String write = diskWriteSection.get(i);
+        String io = diskIO.get(i);
+        
+        String diskReadData[] = read.split(",");
+        String diskWriteData[] = write.split(",");
+        String ioData[] = io.split(","); 
+
+        // Assert same snapshot time
+        assert diskReadData[1].equals(diskWriteData[1]);
+        assert diskReadData[1].equals(ioData[1]);
+
+        BigDecimal diskReadSum = BigDecimal.ZERO;
+        for (int j = 2; j < diskReadData.length; j++) {
+          BigDecimal t = new BigDecimal(diskReadData[j]);
+          diskReadSum = diskReadSum.add(new BigDecimal(diskReadData[j]));
+        }
+
+        BigDecimal diskWriteSum = BigDecimal.ZERO;
+        for (int j = 2; j < diskWriteData.length; j++) {
+          diskWriteSum = diskWriteSum.add(new BigDecimal(diskWriteData[j]));
+        }
+
+        BigDecimal ioSum = BigDecimal.ZERO;
+        for (int j = 2; j < ioData.length; j++) {
+          ioSum = ioSum.add(new BigDecimal(ioData[j]));
+        }
+        
+        diskSum.add("DISK_SUMM," + diskReadData[1] + "," + diskReadSum + "," + diskWriteSum + "," + ioSum);
+      }
+      sections.put("DISK_SUMM", diskSum);
+    }
+  }
 }
