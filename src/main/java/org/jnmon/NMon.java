@@ -7,6 +7,7 @@ package org.jnmon;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.File;
@@ -277,6 +278,37 @@ public class NMon {
     return chartPanel;
   }
 
+public ChartPanel getCPU_ALLChartPanel() {
+    final DateAxis domainAxis = new DateAxis("Time");
+    domainAxis.setVerticalTickLabels(true);
+    domainAxis.setTickUnit(new DateTickUnit(DateTickUnitType.HOUR, 1));
+    domainAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
+    domainAxis.setLowerMargin(0.01);
+    domainAxis.setUpperMargin(0.01);
+    final ValueAxis rangeAxis = new NumberAxis();
+
+    final StackedXYAreaRenderer renderer = new StackedXYAreaRenderer(StackedXYAreaRenderer.AREA);
+    renderer.setOutline(false);
+    Color excelBlue = new Color(79, 129, 189);
+    renderer.setSeriesPaint(0, excelBlue);
+    renderer.setSeriesPaint(1, new Color(192, 80, 77));
+    renderer.setSeriesPaint(2, new Color(155, 187, 89));
+    renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator("{0}: ({1}, {2})", new SimpleDateFormat("HH:mm:ss"), new DecimalFormat("#,##0.00")));
+    final XYPlot plot = new XYPlot(createCPU_ALL_DataSet(), domainAxis, rangeAxis, renderer);
+    // To avoid bug ID: 1225830 http://sourceforge.net/tracker/?func=detail&aid=1225830&group_id=15494&atid=115494
+    plot.setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD);
+
+    final JFreeChart chart = new JFreeChart("CPU% vs VPs", plot);
+    chart.getLegend().setPosition(RectangleEdge.TOP);
+
+    final ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+    chartPanel.setMouseZoomable(true, false);
+
+    return chartPanel;
+  }
+
+
 // AAA,cpus,16,8
 // cpus 		the number of CPUs in the system and the number active at the start of data collection.
   public int getNumberOfActiveCPU() {
@@ -495,5 +527,45 @@ public class NMon {
       }
       sections.put("DISK_SUMM", diskSum);
     }
+  }
+
+  private XYDataset createCPU_ALL_DataSet() {
+    // CPU_ALL,CPU Total lr102ora3502c,User%,Sys%,Wait%,Idle%,Busy,CPUs
+    // CPU_ALL,T0043,12.5,8.1,0.8,78.6,,2
+    // 1 - User%
+    // 2 - Sys%
+    // 3 - Wait%
+    // 4 - Idle%
+    // 5 - Busy
+    // 6 - CPUs
+ 
+    TimeTableXYDataset localTimeTableXYDataset = new TimeTableXYDataset();
+
+    boolean first = true;
+    int i = 0;
+    for (String line : lines) {
+      String[] tokens = line.split(",", 2);
+      if (tokens[0].equals("CPU_ALL")) {
+        if (first) {
+          first = false;
+        } else //if ((i % 10) == 0)
+        {
+          String items[] = tokens[1].split(",");
+
+          String snapshot = items[0];
+          Second second = new Second(snapshotTimes.get(snapshot));
+
+          double user_percent = Double.valueOf(items[1]);
+          double sys_percent = Double.valueOf(items[2]);
+          double wait_percent = Double.valueOf(items[3]);
+
+          localTimeTableXYDataset.add(second, user_percent, "User%");
+          localTimeTableXYDataset.add(second, sys_percent, "Sys%");
+          localTimeTableXYDataset.add(second, wait_percent, "Wait%");
+        }
+        i++;
+      }
+    }
+    return localTimeTableXYDataset;
   }
 }

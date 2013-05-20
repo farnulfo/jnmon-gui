@@ -276,15 +276,18 @@ public class DesktopApplication1View extends FrameView {
       Logger.getLogger(DesktopApplication1View.class.getName()).log(Level.SEVERE, sectionName);
 
       if ("LPAR".equals(sectionName)) {
-        ChartPanel chartPanel = nmon.getLPARChartPanel();
         JTabbedPane jTabbedPane = new JTabbedPane();
-        jTabbedPane.addTab("LPAR", chartPanel);
+        jTabbedPane.addTab("LPAR", nmon.getLPARChartPanel());
         jTabbedPane.addTab("CPU% vs VPs", nmon.getLPAR2ChartPanel());
         jTabbedPane.addTab("Share Pool Utilisation", nmon.getSharePoolUtilisation());
         jSplitPane1.setRightComponent(jTabbedPane);
       } else if ("MEM".equals(sectionName)) {
         JTabbedPane jTabbedPane = new JTabbedPane();
         jTabbedPane.addTab("Memory", nmon.getMemoryRealFree());
+        jSplitPane1.setRightComponent(jTabbedPane);
+      } else if ("CPU_ALL".equals(sectionName)) {
+        JTabbedPane jTabbedPane = new JTabbedPane();
+        jTabbedPane.addTab("CPU_ALL", nmon.getCPU_ALLChartPanel());
         jSplitPane1.setRightComponent(jTabbedPane);
       } else {
         List<String> data = nmon.getSection(sectionName);
