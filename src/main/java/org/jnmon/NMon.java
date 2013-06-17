@@ -85,7 +85,20 @@ public class NMon {
       section.add(line);
     }
     extractSnapshotTimes(getSection("ZZZZ"));
-    insertDiskSum();
+    insertDiskSum(getHost());
+  }
+  
+  public String getHost() {
+    List<String> aaaSection = getSection("AAA");
+    String host = "undefined host in AAA section";
+    for (String line : aaaSection) {
+      String values[] = line.split(",");
+      if (values[1].equals("host")) {
+        host = values[2];
+        break;
+      }
+    }
+    return host;
   }
 
   public List<String> getSections() {
@@ -483,7 +496,7 @@ public ChartPanel getCPU_ALLChartPanel() {
     return dataset;
   }
 
-  private void insertDiskSum() {
+  private void insertDiskSum(String host) {
     // DISKREAD,T0001,0.5,1130.2,3038.8,0.0,0.5
     // DISKWRITE,T0001,0.0,0.0,436.5,0.0,0.0
     List<String> diskReadSection = getSection("DISKREAD");
@@ -493,7 +506,7 @@ public ChartPanel getCPU_ALLChartPanel() {
     if ((diskReadSection.size() == diskWriteSection.size())
             && (diskReadSection.size() == diskIO.size())) {
       ArrayList<String> diskSum = new ArrayList<String>();
-      diskSum.add("DISK_SUMM,Disk total KB/s SVCDBATTR02Q,Disk Read KB/s,Disk Write KB/s,IO/sec");
+      diskSum.add("DISK_SUMM,Disk total KB/s " + host +",Disk Read KB/s,Disk Write KB/s,IO/sec");
       for (int i = 1; i < diskReadSection.size(); i++) {
         String read = diskReadSection.get(i);
         String write = diskWriteSection.get(i);
