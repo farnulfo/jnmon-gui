@@ -86,6 +86,8 @@ public class NMon {
     }
     extractSnapshotTimes(getSection("ZZZZ"));
     insertDiskSum(getHost());
+    
+    sections.put("SYS_SUMM", null);
   }
   
   public String getHost() {
@@ -580,5 +582,71 @@ public ChartPanel getCPU_ALLChartPanel() {
       }
     }
     return localTimeTableXYDataset;
+  }
+
+  public Component getSYS_SUMMChartPanel() {
+    final DateAxis domainAxis = new DateAxis("Time");
+    domainAxis.setVerticalTickLabels(true);
+    domainAxis.setTickUnit(new DateTickUnit(DateTickUnitType.HOUR, 1));
+    domainAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
+    domainAxis.setLowerMargin(0.01);
+    domainAxis.setUpperMargin(0.01);
+    final ValueAxis rangeAxis = new NumberAxis();
+
+    //rangeAxis.setRange(0, getNumberOfActiveCPU());
+
+    final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(/* lines = */true, /* shapes = */ false);
+    XYDataset dataSet = create_SYS_SUMM_CPU_DataSet();
+    for (int i = 0; i < dataSet.getSeriesCount(); i++) {
+      renderer.setSeriesStroke(i, new BasicStroke(2));
+    }
+    renderer.setSeriesPaint(0, new Color(0, 0, 128));
+
+    
+    final XYPlot plot = new XYPlot(dataSet, domainAxis, rangeAxis, renderer);
+
+    final JFreeChart chart = new JFreeChart("SYS_SUMM : " + filepath, plot);
+    chart.getLegend().setPosition(RectangleEdge.TOP);
+
+    //File file = new File("cpu.png");
+    //ChartUtilities.saveChartAsPNG(file, chart, 800, 600);
+    final ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+    chartPanel.setMouseZoomable(true, false);
+
+    return chartPanel;
+  }
+
+  private XYDataset create_SYS_SUMM_CPU_DataSet() {
+  // CPU_ALL, CPU Total lr102bat3501f, User%, Sys%, Wait%, Idle%, Busy,CPUs
+  // CPU_ALL, T0003,                   2.8,   2.5,  0.0,   94.6,      , 2
+
+    final TimeSeries s1 = new TimeSeries("CPU_ALL");
+
+    boolean first = true;
+    int i = 0;
+    for (String line : lines) {
+      String[] tokens = line.split(",", 2);
+      if (tokens[0].equals("CPU_ALL")) {
+        if (first) {
+          first = false;
+        } else //if ((i % 10) == 0)
+        {
+          String items[] = tokens[1].split(",");
+
+          String snapshot = items[0];
+          Second second = new Second(snapshotTimes.get(snapshot));
+
+          double cpu = Double.valueOf(items[1]);
+
+          s1.add(second, cpu);
+        }
+        i++;
+      }
+    }
+    final TimeSeriesCollection dataset = new TimeSeriesCollection();
+    dataset.addSeries(s1);
+
+    return dataset;
   }
 }

@@ -289,6 +289,10 @@ public class DesktopApplication1View extends FrameView {
         JTabbedPane jTabbedPane = new JTabbedPane();
         jTabbedPane.addTab("CPU_ALL", nmon.getCPU_ALLChartPanel());
         jSplitPane1.setRightComponent(jTabbedPane);
+      } else if ("SYS_SUMM".equals(sectionName)) {
+        JTabbedPane jTabbedPane = new JTabbedPane();
+        jTabbedPane.addTab("SYS_SUMM", nmon.getSYS_SUMMChartPanel());
+        jSplitPane1.setRightComponent(jTabbedPane);
       } else {
         List<String> data = nmon.getSection(sectionName);
         StringBuilder sb = new StringBuilder();
