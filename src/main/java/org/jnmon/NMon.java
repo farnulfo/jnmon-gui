@@ -304,8 +304,7 @@ public ChartPanel getCPU_ALLChartPanel() {
 
     final StackedXYAreaRenderer renderer = new StackedXYAreaRenderer(StackedXYAreaRenderer.AREA);
     renderer.setOutline(false);
-    Color excelBlue = new Color(79, 129, 189);
-    renderer.setSeriesPaint(0, excelBlue);
+    renderer.setSeriesPaint(0, new Color(79, 129, 189));
     renderer.setSeriesPaint(1, new Color(192, 80, 77));
     renderer.setSeriesPaint(2, new Color(155, 187, 89));
     renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator("{0}: ({1}, {2})", new SimpleDateFormat("HH:mm:ss"), new DecimalFormat("#,##0.00")));
