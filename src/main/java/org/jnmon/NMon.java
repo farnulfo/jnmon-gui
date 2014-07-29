@@ -37,8 +37,6 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.SeriesRenderingOrder;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StackedXYAreaRenderer;
-import org.jfree.chart.renderer.xy.StackedXYAreaRenderer2;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
@@ -49,10 +47,10 @@ import org.jfree.ui.RectangleEdge;
 
 public class NMon {
 
-  private String filepath;
-  private List<String> lines;
-  private SortedMap<String, Date> snapshotTimes = new TreeMap<String, Date>();
-  private Map<String, List<String>> sections = new HashMap<String, List<String>>() {
+  private final String filepath;
+  private final List<String> lines;
+  private final SortedMap<String, Date> snapshotTimes = new TreeMap<String, Date>();
+  private final Map<String, List<String>> sections = new HashMap<String, List<String>>() {
   };
 
   public NMon(File filename) throws IOException, ParseException {
