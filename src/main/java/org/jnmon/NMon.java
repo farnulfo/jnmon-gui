@@ -38,6 +38,7 @@ import org.jfree.chart.plot.SeriesRenderingOrder;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StackedXYAreaRenderer;
 import org.jfree.chart.renderer.xy.StackedXYAreaRenderer2;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
@@ -599,7 +600,20 @@ public ChartPanel getCPU_ALLChartPanel() {
 
     
     final XYPlot plot = new XYPlot(dataSet, domainAxis, rangeAxis, renderer);
+    
+    final NumberAxis axis2 = new NumberAxis("Disk xfers");
+      axis2.setAutoRange(true);
+      plot.setRangeAxis(1, axis2);
+      plot.setDataset(1, create_SYS_SUMM_IO_DataSet());
+      plot.mapDatasetToRangeAxis(1, 1);
 
+      final XYLineAndShapeRenderer renderer2 = new XYLineAndShapeRenderer(/* lines = */true, /* shapes = */ false);
+        renderer2.setSeriesPaint(1, new Color(248, 48, 150));
+      renderer2.setSeriesStroke(0, new BasicStroke(2));
+      renderer2.setSeriesStroke(1, new BasicStroke(2));
+   
+        plot.setRenderer(1, renderer2);
+        
     final JFreeChart chart = new JFreeChart("SYS_SUMM : " + filepath, plot);
     chart.getLegend().setPosition(RectangleEdge.TOP);
 
@@ -641,7 +655,34 @@ public ChartPanel getCPU_ALLChartPanel() {
     }
     final TimeSeriesCollection dataset = new TimeSeriesCollection();
     dataset.addSeries(s1);
+    
+    return dataset;
+  }
 
+   private XYDataset create_SYS_SUMM_IO_DataSet() {
+    // DISK_SUMM,Disk total KB/s lr102bat3501f,Disk Read KB/s,Disk Write KB/s,IO/sec
+      // DISK_SUMM,T0063,1.2,8441.8,823.7
+
+    final TimeSeries s1 = new TimeSeries("IO_ALL");
+
+      List<String> diskSum = sections.get("DISK_SUMM");
+       boolean first = true;
+       for (String s : diskSum) {
+           if (first) {
+               first = false;
+           } else {
+               String items[] = s.split(",");
+               String snapshot = items[1];
+               Second second = new Second(snapshotTimes.get(snapshot));
+               double io_per_sec = Double.valueOf(items[4]);
+               
+               s1.add(second, io_per_sec);
+           }
+       }
+
+    final TimeSeriesCollection dataset = new TimeSeriesCollection();
+    dataset.addSeries(s1);
+    
     return dataset;
   }
 }
